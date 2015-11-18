@@ -110,7 +110,7 @@ void lcd_clear()
 	// Data/DC are outputs for the lcd (all low)
 	LCD_DDR |= LCD_DATA_PIN | LCD_DC_PIN;
     // Enable display controller (active low)
-    LCD_PORT &= ~LCD_CE_PIN;	
+    LCD_PORT &= ~LCD_CE_PIN;
 
 	// DATA MODE ON 
 	LCD_PORT |= LCD_DC_PIN;
@@ -242,8 +242,10 @@ void lcd_pixel(int x, int y)
 // Clear CPU cache
 void lcd_display()
 {
-
 	open_control();
+
+	// lastX when draw happens, used to make less position_cursor calls
+	int lastX = 0;
 
 	for(int x = 0; x < 128; ++x)
 	{
@@ -251,20 +253,23 @@ void lcd_display()
 		{
 			if(cpu_cache[x][y] != gpu_cache[x][y])
 			{
-				// TODO: SEND DATA
-
 				// Update the cache
 				gpu_cache[x][y] = cpu_cache[x][y];
 
-
-				position_cursor(x, y);
-
+				// Draws that are in sequence do not need cursor repositioning
+				if(lastX == x - 1)
+				{
+					lastX++;
+				}
+				else
+				{
+					position_cursor(x, y);
 				
-				// DATA MODE ON, left off by the cursor position
-				LCD_PORT |= LCD_DC_PIN;
+					// DATA MODE ON, left off by the cursor position
+					LCD_PORT |= LCD_DC_PIN;
+				}
 
 				send_data(gpu_cache[x][y]);
-
 			}
 		}
 	}
