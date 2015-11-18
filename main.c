@@ -19,16 +19,10 @@ int main(void)
 	DDRA = 0xE0;
 
 	lcd_init();
-
+	
+	//TODO: move this to init
 	lcd_clear();
 
-	lcd_goto_xy_exact(5, 3);
-
-	//test loop
-	int ticker = 0;
-	
-	// new "modern" loop
-	
 	int x = 0;
 
 	for(;;)
@@ -50,99 +44,4 @@ int main(void)
 
 		lcd_display();
 	}
-	
-
-
-// old test loop
-	for(;;)
-	{
-		if(ticker == 0)
-			ticker = 1;
-		else
-			ticker = 0;
-
-		_delay_ms(150);
-
-//--- {Enabling controllers}
-		// Data/DC are outputs for the lcd (all low)
-		LCD_DDR |= LCD_DATA_PIN | LCD_DC_PIN;
-	    // Enable display controller (active low)
-	    LCD_PORT &= ~LCD_CE_PIN;	
-//----
-
-		// DATA MODE ON 
-		LCD_PORT |= LCD_DC_PIN;
-		// COMMAND MODE 
-		//LCD_PORT &= ~LCD_DC_PIN;
-
-//########################################
-
-
-		//ticker test flash draw
-		for(int q = 0; q < 500; ++q)
-		{
-				for(unsigned char i=0;i<8;i++) {
-					// on or off
-					if(ticker == 1)
-						LCD_PORT |= LCD_DATA_PIN;
-					else
-						LCD_PORT &= ~LCD_DATA_PIN;
-
-					// Toggle the clock
-					LCD_PORT |= LCD_CLK_PIN;
-					for(int j=0;j<10;j++); // lisätty pientä viivettä
-					LCD_PORT &= ~LCD_CLK_PIN;
-				}
-		}
-/*
-		//clear
-		for(int q = 0; q < 2000; ++q)
-		{
-				for(unsigned char i=0;i<8;i++) {
-					LCD_PORT &= ~LCD_DATA_PIN;
-
-					// Toggle the clock
-					LCD_PORT |= LCD_CLK_PIN;
-					for(int j=0;j<10;j++); // lisätty pientä viivettä
-					LCD_PORT &= ~LCD_CLK_PIN;
-				}
-		}
-
-		for(int q = 0; q < 500; ++q)
-		{
-				for(unsigned char i=0;i<8;i++) {
-					// on or off
-					if(i < 7)
-					{
-						if(ticker == 1)
-							LCD_PORT |= LCD_DATA_PIN;
-						else
-							LCD_PORT &= ~LCD_DATA_PIN;
-					}
-					else
-						LCD_PORT &= ~LCD_DATA_PIN;
-
-					// Toggle the clock
-					LCD_PORT |= LCD_CLK_PIN;
-					for(int j=0;j<10;j++); // lisätty pientä viivettä
-					LCD_PORT &= ~LCD_CLK_PIN;
-				}
-		}
-*/
-//########################################
-
-		//---- {Disabling controllers}
-
-		// Disable display controller
-		//LCD_PORT &= ~LCD_DC_PIN;
-	    LCD_PORT |= LCD_CE_PIN;
-	
-		// Data/DC can be used as button inputs when not sending to LCD (/w pullups)
-		LCD_DDR &= ~(LCD_DATA_PIN | LCD_DC_PIN);
-		LCD_PORT |= LCD_DATA_PIN | LCD_DC_PIN;
-
-		//----
-	}
-
-
 }
