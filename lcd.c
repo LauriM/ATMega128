@@ -13,43 +13,6 @@ unsigned char cpu_cache[128][8];
 // This cache represents the LCD status on all times
 unsigned char gpu_cache[128][8];
 
-// currently the most minimal init with it has worked
-void lcd_init(void)
-{
-	memset(cpu_cache, 0, sizeof cpu_cache);
-	memset(gpu_cache, 0, sizeof gpu_cache);
-/*
-	// IO-port INIT
-	DDRA = 0xE0;
-	
-	// Set output bits on lcd port
-	LCD_DDR |= LCD_RST_PIN | LCD_CE_PIN | LCD_DC_PIN | LCD_DATA_PIN | LCD_CLK_PIN;
-
-    // Disable LCD controller
-    LCD_PORT |= LCD_CE_PIN;
-*/
-
-
-	// Pull-up on reset pin
-    LCD_PORT |= LCD_RST_PIN;	// Reset = 1
-	
-	// Set output bits on lcd port
-	LCD_DDR |= LCD_RST_PIN | LCD_CE_PIN | LCD_DC_PIN | LCD_DATA_PIN | LCD_CLK_PIN;
-	// LCD_DDR DDRC ei toimimmm
-
-	// Wait after VCC high for reset (max 30ms)
-    _delay_ms(15);
-    
-    // Toggle display reset pin
-    LCD_PORT &= ~LCD_RST_PIN; // Reset = 0
-	_delay_ms(15);
-    LCD_PORT |= LCD_RST_PIN;	// Reset = 1
-
-	_delay_ms(15);
-
-    // Disable LCD controller
-    LCD_PORT |= LCD_CE_PIN;
-}
 
 //HACK, only visible for the header
 void lcd_send(unsigned char data, LcdCmdData cd)
@@ -93,6 +56,56 @@ void lcd_send(unsigned char data, LcdCmdData cd)
 }
 
 
+// currently the most minimal init with it has worked
+void lcd_init(void)
+{
+	memset(cpu_cache, 0, sizeof cpu_cache);
+	memset(gpu_cache, 0, sizeof gpu_cache);
+/*
+	// IO-port INIT
+	DDRA = 0xE0;
+	
+	// Set output bits on lcd port
+	LCD_DDR |= LCD_RST_PIN | LCD_CE_PIN | LCD_DC_PIN | LCD_DATA_PIN | LCD_CLK_PIN;
+
+    // Disable LCD controller
+    LCD_PORT |= LCD_CE_PIN;
+*/
+
+
+	// Pull-up on reset pin
+    LCD_PORT |= LCD_RST_PIN;	// Reset = 1
+	
+	// Set output bits on lcd port
+	LCD_DDR |= LCD_RST_PIN | LCD_CE_PIN | LCD_DC_PIN | LCD_DATA_PIN | LCD_CLK_PIN;
+	// LCD_DDR DDRC ei toimimmm
+
+	// Wait after VCC high for reset (max 30ms)
+    _delay_ms(15);
+    
+    
+    lcd_send(0xEB, LCD_CMD);  	// LCD bias 
+    lcd_send(0x23, LCD_CMD);  	// Set Lines >> 23 = 64
+    lcd_send(0x81, LCD_CMD);	// Set Potentiometer
+    lcd_send(0x64, LCD_CMD);	// 16 >> 64 (Tummuus)
+    lcd_send(0xAF, LCD_CMD);  	// Set Display ON
+    lcd_send(0xCC, LCD_CMD);  	// Set LCD to RAM mapping
+	
+	//lcd_send(0xFF, LCD_DATA);	// 
+	//lcd_send(0x00, LCD_DATA);  	// Set Display ON
+    //lcd_send(0xFF, LCD_DATA);
+    
+    // Toggle display reset pin
+    LCD_PORT &= ~LCD_RST_PIN; // Reset = 0
+	_delay_ms(15);
+    LCD_PORT |= LCD_RST_PIN;	// Reset = 1
+
+	_delay_ms(15);
+
+    // Disable LCD controller
+    LCD_PORT |= LCD_CE_PIN;
+}
+
 // Set the base address of the lcd
 void lcd_goto_xy_exact(unsigned char x, unsigned char y) {
 
@@ -125,7 +138,7 @@ void lcd_clear()
 
 			// Toggle the clock
 			LCD_PORT |= LCD_CLK_PIN;
-			for(int j=0;j<10;j++); // lisätty pientä viivettä
+			for(int j=0;j<10;j++); // lisÃ¤tty pientÃ¤ viivettÃ¤
 			LCD_PORT &= ~LCD_CLK_PIN;
 		}
 	}
@@ -160,7 +173,7 @@ void send_data(unsigned char data)
        
         // Toggle the clock
         LCD_PORT |= LCD_CLK_PIN;
-        for(j=0;j<4;j++); // lisätty pientä viivettä
+        for(j=0;j<4;j++); // lisÃ¤tty pientÃ¤ viivettÃ¤
         LCD_PORT &= ~LCD_CLK_PIN;
     }
 
