@@ -31,7 +31,6 @@ typedef enum { LCD_CMD  = 0, LCD_DATA = 1 } LcdCmdData;
 
 //TODO: Still to refactor these!
 void lcd_goto_xy_exact(unsigned char x, unsigned char y);
-
 void lcd_clear();
 
 // *****
