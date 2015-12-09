@@ -14,7 +14,7 @@ unsigned char cpu_cache[128][8];
 unsigned char gpu_cache[128][8];
 
 
-//HACK, only visible for the header
+//HACK, only visible in the header file
 void lcd_send(unsigned char data, LcdCmdData cd)
 {
 	// Data/DC are outputs for the lcd (all low)
@@ -57,6 +57,7 @@ void lcd_send(unsigned char data, LcdCmdData cd)
 
 
 // currently the most minimal init with it has worked
+// Contains some old code, could be cleaned up
 void lcd_init(void)
 {
 	memset(cpu_cache, 0, sizeof cpu_cache);
@@ -107,6 +108,7 @@ void lcd_init(void)
 }
 
 // Set the base address of the lcd
+// Hack version, only for internal use
 void lcd_goto_xy_exact(unsigned char x, unsigned char y) {
 
 	lcd_send(0xB0 | y, LCD_CMD);	// page
@@ -116,6 +118,7 @@ void lcd_goto_xy_exact(unsigned char x, unsigned char y) {
 	
 }
 
+// hack clear
 void lcd_clear()
 {
 	lcd_goto_xy_exact(0, 0);
@@ -179,31 +182,8 @@ void send_data(unsigned char data)
 
 }
 
-void open_control()
-{
-	//--- {Enabling controllers}
-	// Data/DC are outputs for the lcd (all low)
-	LCD_DDR |= LCD_DATA_PIN | LCD_DC_PIN;
-    // Enable display controller (active low)
-	LCD_PORT &= ~LCD_CE_PIN;
-}
 
-void close_control()
-{
-	
-	//---- {Disabling controllers}
-
-	// Disable display controller
-	//LCD_PORT &= ~LCD_DC_PIN;
-    LCD_PORT |= LCD_CE_PIN;
-
-	// Data/DC can be used as button inputs when not sending to LCD (/w pullups)
-	LCD_DDR &= ~(LCD_DATA_PIN | LCD_DC_PIN);
-	LCD_PORT |= LCD_DATA_PIN | LCD_DC_PIN;
-
-	//----
-}
-
+// Hack cursor position thing
 void position_cursor(int x, int y)
 {
 /*
@@ -231,6 +211,35 @@ void position_cursor(int x, int y)
     LCD_PORT |= LCD_DATA_PIN | LCD_DC_PIN;
 	*/
  
+}
+
+/* All rest of the code under this is good */
+
+// Open control to the LCD display
+void open_control()
+{
+	//--- {Enabling controllers}
+	// Data/DC are outputs for the lcd (all low)
+	LCD_DDR |= LCD_DATA_PIN | LCD_DC_PIN;
+    // Enable display controller (active low)
+	LCD_PORT &= ~LCD_CE_PIN;
+}
+
+// Close control to the LCD display
+void close_control()
+{
+	
+	//---- {Disabling controllers}
+
+	// Disable display controller
+	//LCD_PORT &= ~LCD_DC_PIN;
+    LCD_PORT |= LCD_CE_PIN;
+
+	// Data/DC can be used as button inputs when not sending to LCD (/w pullups)
+	LCD_DDR &= ~(LCD_DATA_PIN | LCD_DC_PIN);
+	LCD_PORT |= LCD_DATA_PIN | LCD_DC_PIN;
+
+	//----
 }
 
 // Draw a single pixel
